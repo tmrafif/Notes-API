@@ -1,13 +1,23 @@
-require('dotenv').config();
+require("dotenv").config();
 
 const Hapi = require("@hapi/hapi");
+
+// notes
 const notes = require("./api/notes");
 const NotesServices = require("./services/postgres/NotesServices");
 const NotesValidator = require("./validator/notes");
+
+// users
+const users = require("./api/users");
+const UsersServices = require("./services/postgres/UsersServices");
+const UsersValidator = require("./validator/users");
+
 const ClientError = require("./exceptions/ClientError");
 
 const init = async () => {
+    // services
     const notesServices = new NotesServices();
+    const usersServices = new UsersServices();
 
     const server = Hapi.server({
         port: process.env.PORT,
@@ -20,13 +30,22 @@ const init = async () => {
     });
 
     // register plugin
-    await server.register({
-        plugin: notes,
-        options: {
-            service: notesServices,
-            validator: NotesValidator,
+    await server.register([
+        {
+            plugin: notes,
+            options: {
+                service: notesServices,
+                validator: NotesValidator,
+            },
         },
-    });
+        {
+            plugin: users,
+            options: {
+                service: usersServices,
+                validator: UsersValidator,
+            },
+        },
+    ]);
 
     // extension function
     server.ext("onPreResponse", (request, h) => {
@@ -38,6 +57,16 @@ const init = async () => {
                 message: response.message,
             });
             newResponse.code(response.statusCode);
+            return newResponse;
+        }
+
+        if (response instanceof Error) {
+            const newResponse = h.response({
+                status: "error",
+                message: response.output.payload.message,
+            });
+            newResponse.code(response.output.statusCode);
+            console.error(response);
             return newResponse;
         }
 

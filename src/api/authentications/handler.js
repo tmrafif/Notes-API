@@ -30,7 +30,7 @@ class AuthenticationsHandler {
             message: "Authentication berhasil ditambahkan",
             data: {
                 accessToken,
-                refreshToken,
+                refreshToken
             },
         });
         response.code(201);
@@ -56,7 +56,7 @@ class AuthenticationsHandler {
     async deleteAuthenticationHandler(request, h) {
         this._validator.validateDeleteAuthenticationPayload(request.payload);
         const { refreshToken } = request.payload;
-        
+
         await this._authenticationsService.verifyRefreshToken(refreshToken);
 
         // delete refresh token

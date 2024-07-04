@@ -1,5 +1,3 @@
-const { options } = require("joi");
-
 const routes = (handler) => [
     {
         method: "POST",

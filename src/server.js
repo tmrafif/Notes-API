@@ -5,27 +5,33 @@ const Jwt = require("@hapi/jwt");
 
 // notes
 const notes = require("./api/notes");
-const NotesServices = require("./services/postgres/NotesServices");
+const NotesService = require("./services/postgres/NotesService");
 const NotesValidator = require("./validator/notes");
 
 // users
 const users = require("./api/users");
-const UsersServices = require("./services/postgres/UsersServices");
+const UsersService = require("./services/postgres/UsersService");
 const UsersValidator = require("./validator/users");
 
 // authentications
 const authentications = require("./api/authentications");
-const AuthenticationsServices = require("./services/postgres/AuthenticationsServices");
+const AuthenticationsService = require("./services/postgres/AuthenticationsService");
 const AuthenticationsValidator = require("./validator/authentications");
 const TokenManager = require("./tokenize/TokenManager");
+
+// collaborations
+const collaborations = require("./api/collaborations");
+const CollaborationsService = require("./services/postgres/CollaborationsService");
+const CollaborationsValidator = require("./validator/collaborations");
 
 const ClientError = require("./exceptions/ClientError");
 
 const init = async () => {
     // services
-    const notesServices = new NotesServices();
-    const usersServices = new UsersServices();
-    const authenticationsServices = new AuthenticationsServices();
+    const collaborationsService = new CollaborationsService();
+    const notesService = new NotesService(collaborationsService);
+    const usersService = new UsersService();
+    const authenticationsService = new AuthenticationsService();
 
     const server = Hapi.server({
         port: process.env.PORT,
@@ -66,24 +72,32 @@ const init = async () => {
         {
             plugin: notes,
             options: {
-                service: notesServices,
+                service: notesService,
                 validator: NotesValidator,
             },
         },
         {
             plugin: users,
             options: {
-                service: usersServices,
+                service: usersService,
                 validator: UsersValidator,
             },
         },
         {
             plugin: authentications,
             options: {
-                authenticationsService: authenticationsServices,
-                usersService: usersServices,
+                authenticationsService,
+                usersService,
                 tokenManager: TokenManager,
                 validator: AuthenticationsValidator,
+            },
+        },
+        {
+            plugin: collaborations,
+            options: {
+                collaborationsService,
+                notesService,
+                validator: CollaborationsValidator,
             },
         },
     ]);

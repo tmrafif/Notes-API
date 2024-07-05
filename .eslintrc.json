@@ -12,6 +12,9 @@
     "rules": {
         "no-console": "off",
         "indent": ["error", 4],
-        "quotes": ["error", "double"]
+        "quotes": "off",
+        "linebreak-style": "off",
+        "no-underscore-dangle": ["error", { "allowAfterThis": true }],
+        "comma-dangle": "off"
     }
 }

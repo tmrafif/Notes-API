@@ -6,6 +6,7 @@ const mapDBToModel = (dbObject) => {
         tags: dbObject.tags,
         createdAt: dbObject.created_at,
         updatedAt: dbObject.updated_at,
+        username: dbObject.username,
     };
 };
 

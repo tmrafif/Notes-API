@@ -37,7 +37,7 @@ class NotesHandler {
         return response;
     }
 
-    async getNotesHandler(request, h) {
+    async getNotesHandler(request) {
         const { id: credentialId } = request.auth.credentials;
 
         const notes = await this._service.getNotes(credentialId);
@@ -48,11 +48,11 @@ class NotesHandler {
         };
     }
 
-    async getNoteByIdHandler(request, h) {
+    async getNoteByIdHandler(request) {
         const { id } = request.params;
         const { id: credentialId } = request.auth.credentials;
 
-        await this._service.verifyNoteOwner(id, credentialId);
+        await this._service.verifyNoteAccess(id, credentialId);
         const note = await this._service.getNoteById(id);
 
         return {
@@ -61,12 +61,12 @@ class NotesHandler {
         };
     }
 
-    async putNoteByIdHandler(request, h) {
+    async putNoteByIdHandler(request) {
         this._validator.validateNotePayload(request.payload);
         const { id } = request.params;
         const { id: credentialId } = request.auth.credentials;
 
-        await this._service.verifyNoteOwner(id, credentialId);
+        await this._service.verifyNoteAccess(id, credentialId);
         await this._service.editNoteById(id, request.payload);
 
         return {
@@ -75,7 +75,7 @@ class NotesHandler {
         };
     }
 
-    async deleteNoteByIdHandler(request, h) {
+    async deleteNoteByIdHandler(request) {
         const { id } = request.params;
         const { id: credentialId } = request.auth.credentials;
 
